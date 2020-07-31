@@ -1,0 +1,16 @@
+#!/bin/bash
+
+docker container prune -f || exit 1
+
+
+docker build -t sr . || exit 1
+echo build completed successfully
+
+# Change Splunk App Folder, let ABS get absolute path to it
+SPLUNK_APP_FOLDER=../splunk_app
+SPLUNK_APP_FOLDER_ABS=`cd $SPLUNK_APP_FOLDER && pwd`
+
+docker run -it --rm \
+-e SPLUNK_START_ARGS=--accept-license -e SPLUNK_PASSWORD=test1234 \
+--mount type=bind,source=$SPLUNK_APP_FOLDER_ABS,target=/host_app \
+-p 8000:8000 --name cname sr
